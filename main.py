@@ -16,8 +16,7 @@ def ask_gemini(question):
     response = requests.post(url, json=payload)
     data = response.json()
 
-    return data["candidates"][0]["content"]["parts"][0]["text"]
+    if "candidates" in data:
+        return data["candidates"][0]["content"]["parts"][0]["text"]
 
-@app.get("/ask")
-def ask(q: str):
-    return {"answer": ask_gemini(q)}
+    return f"ERROR FROM GEMINI: {data}"
