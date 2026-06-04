@@ -1,9 +1,18 @@
 import os
 import requests
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -15,26 +24,36 @@ class RequestBody(BaseModel):
     prompt: str
 
 
-def call_gemini(prompt: str):
-    payload = {
-        "contents": [
-            {
-                "parts": [{"text": prompt}]
-            }
-        ]
-    }
-
-    r = requests.post(URL, params={"key": API_KEY}, json=payload)
-    data = r.json()
-
-    if "candidates" in data:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-
-    return data
+@app.get("/")
+def root():
+    return {"status": "ok"}
 
 
 @app.post("/ask")
 def ask(body: RequestBody):
-    return {
-        "response": call_gemini(body.prompt)
+
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": body.prompt}
+                ]
+            }
+        ]
     }
+
+    r = requests.post(
+        URL,
+        params={"key": API_KEY},
+        json=payload,
+        timeout=60
+    )
+
+    data = r.json()
+
+    if "candidates" in data:
+        return {
+            "response": data["candidates"][0]["content"]["parts"][0]["text"]
+        }
+
+    return {"error": data}
