@@ -18,18 +18,17 @@ It exposes a simple endpoint that allows users to send a question and receive an
 
 ## API Usage
 
-### GET /ask
+### POST /ask
 
-Example:
-
-/ask?q=hello
-
-Example response:
-
+Request body:
 {
-  "answer": "AI generated response here"
+  "prompt": "hello"
 }
 
+Response:
+{
+  "response": "AI generated response here"
+}
 ---
 
 ## Installation
