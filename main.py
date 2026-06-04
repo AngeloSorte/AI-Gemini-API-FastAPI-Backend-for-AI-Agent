@@ -7,7 +7,9 @@ app = FastAPI()
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 def ask_gemini(question):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    MODEL = "models/gemini-2.5-flash"
+
+    URL = f"https://generativelanguage.googleapis.com/v1beta/{MODEL}:generateContent"
 
     payload = {
         "contents": [{"parts": [{"text": question}]}]
