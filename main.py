@@ -23,7 +23,7 @@ URL = f"https://generativelanguage.googleapis.com/v1beta/{MODEL}:generateContent
 
 class RequestBody(BaseModel):
     prompt: str
-    history: list = []
+    history: str = ""   # <-- STRINGA, NON ARRAY
 
 
 @app.get("/")
@@ -36,18 +36,17 @@ def ask(body: RequestBody):
 
     system_prompt = """
 You are a helpful AI assistant.
-You answer clearly and concisely.
-Keep context from previous messages.
+Keep context from conversation history.
+Be concise and useful.
 """
 
-    history_text = ""
-
-    for msg in body.history:
-        role = msg.get("role", "")
-        text = msg.get("text", "")
-        history_text += f"{role}: {text}\n"
-
-    full_prompt = system_prompt + "\n\nCHAT HISTORY:\n" + history_text + "\nUSER:\n" + body.prompt
+    full_prompt = (
+        system_prompt +
+        "\n\nCHAT HISTORY:\n" +
+        body.history +
+        "\nUSER:\n" +
+        body.prompt
+    )
 
     payload = {
         "contents": [
